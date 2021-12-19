@@ -21,9 +21,10 @@ namespace LLDB {
 		bool executed = false;
 		bool set = false;
 		int result = -1;
+		size_t start = 0;
 
 		void replace(const std::string& k, const std::string& v);
-		void replace(const std::vector<std::string>& vals); // Not used
+		void replace(const std::string& v);
 
 
 	public:
@@ -52,7 +53,6 @@ namespace LLDB {
 		void operator,(into_type<bool>& i);
 		void operator,(into_null_type);
 
-		// For debug
 		std::string getSQL();
 
 	};
@@ -61,13 +61,12 @@ namespace LLDB {
 
 	public:
 
-		bool list = false;
+		bool noKey = false;
 		std::string key;
 		std::string val;
-		std::vector<std::string> vals;
 
 		use_type(const std::string& k, const std::string& v);
-		use_type(std::vector<std::string> vals);
+		use_type(const std::string& v);
 
 	};
 
@@ -84,6 +83,13 @@ namespace LLDB {
 
 	class into_null_type {};
 
+	inline std::string to_string(const char* cstr) {
+		return std::string(cstr);
+	}
+	inline std::string to_string(char* cstr) {
+		return std::string(cstr);
+	}
+
 	template <typename T>
 	inline into_type<T> into(T& v) {
 		return into_type(v);
@@ -92,27 +98,19 @@ namespace LLDB {
 		return into_null_type();
 	}
 
+	using std::to_string;
 	inline use_type use(const std::string& k, const std::string& v) {
 		return use_type(k, v);
 	}
-	inline use_type use(const char* k, const std::string& v) {
-		return use_type(k, v);
-	}
-	inline use_type use(const char* k, const char* v) {
-		return use_type(k, v);
-	}
-	using std::to_string;
 	template <typename T>
 	inline use_type use(const std::string& k, T& v) {
 		return use_type(k, to_string(v));
 	}
+	inline use_type use(const std::string& v) {
+		return use_type(v);
+	}
 	template <typename T>
-	inline use_type use(const char* k, T& v) {
-		return use_type(k, to_string(v));
+	inline use_type use(T& v) {
+		return use_type(to_string(v));
 	}
-	template <typename ... Args>
-	inline use_type use(Args... args) {
-		return use_type(std::vector<std::string>{ args... });
-	}
-
 }

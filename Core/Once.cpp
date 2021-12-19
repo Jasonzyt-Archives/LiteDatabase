@@ -16,29 +16,32 @@ namespace LLDB {
 		sql = std::ostringstream();
 		sql << str;
 	}
-	void Once::replace(const std::vector<std::string>& vals) {
+	void Once::replace(const std::string& v) {
 		auto str = sql.str();
-		int j = -1;
-		for (int i = 0; i < str.size() - 1; i++) {
-			if (str[i] == '$' && str[i + 1] == '$') {
-				str.erase(i, 1);
+		for (int i = start; i < str.size(); i++) {
+			if (str[i] == '$') {
+				if (i + 1 == str.size()) {
+					str.pop_back();
+					str += v;
+				}
+				else if (str[i + 1] != '$') {
+					str = str.substr(0, i) + v + str.substr(i + 1);
+				}
+				else {
+					i++;
+					continue;
+				}
+				start += v.size() - 1;
+				break;
 			}
-			else if (str[i] == '$') {
-				str = str.substr(0, i) + vals[++j] + str.substr(i + 1);
-				i += vals[j].size() - 1;
-			}
-		}
-		if (str.back() == '$') {
-			str.pop_back();
-			str += vals[++j];
 		}
 		sql = std::ostringstream();
 		sql << str;
 	}
 
 	Once& Once::operator,(const use_type& u) {
-		if (u.list) {
-			replace(u.vals);
+		if (u.noKey) {
+			replace(u.val);
 		}
 		else {
 			replace(u.key, u.val);
@@ -48,14 +51,14 @@ namespace LLDB {
 
 	template <typename T>
 	void Once::operator,(into_type<T>& i) {
-		auto res = sess.query(sql.str());
+		auto res = sess.query(getSQL());
 		if (res.size()) {
 			from_row(res[0], i.val);
 		}
 	}
 	template <typename T>
 	void Once::operator,(into_type<std::vector<T>>& i) {
-		auto res = sess.query(sql.str());
+		auto res = sess.query(getSQL());
 		for (auto& row : res.getAll()) {
 			T v;
 			from_row(row, v);
@@ -64,18 +67,18 @@ namespace LLDB {
 	}
 	template <typename T>
 	void Once::operator,(into_type<Row>& i) {
-		auto res = sess.query(sql.str());
+		auto res = sess.query(getSQL());
 		return res[0];
 	}
 	template <typename T>
 	void Once::operator,(into_type<Results>& i) {
-		auto res = sess.query(sql.str());
+		auto res = sess.query(getSQL());
 		return res;
 	}
 	template <typename T>
 	void Once::operator,(into_type<bool>& i) {
 		try {
-			sess.exec(sql.str()); 
+			sess.exec(getSQL()); 
 			i.val = true;
 		}
 		catch (...) {
@@ -83,18 +86,24 @@ namespace LLDB {
 		}
 	}
 	void Once::operator,(into_null_type) {
-		sess.exec(sql.str());
+		sess.exec(getSQL());
 	}
 
 	std::string Once::getSQL() {
-		return sql.str();
+		auto str = sql.str();
+		for (int i = 0; i < str.size() - 1; i++) {
+			if (str[i] == '$' && str[i + 1] == '$') {
+				str.erase(i, 1);
+			}
+		}
+		return str;
 	}
 
 	use_type::use_type(const std::string& k, const std::string& v) : key(k), val(v) {
-		list = false;
+		noKey = false;
 	}
-	use_type::use_type(std::vector<std::string> vals) : vals(vals) {
-		list = true;
+	use_type::use_type(const std::string& v) : val(v) {
+		noKey = true;
 	}
 
 }

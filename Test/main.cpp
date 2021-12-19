@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 		cout << endl;
 		Once onc(sess);
 		onc << "INSERT INTO `$` VALUES('$$k',$)", 
-			use("TEST", "123456");
+			use("TEST"), use("123456"), into();
 		cout << onc.getSQL() << endl;
 		sess.close();
 		getchar();
