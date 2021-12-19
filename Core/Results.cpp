@@ -1,5 +1,5 @@
-#include "Results.h"
-
+#include <Results.h>
+#include <Utils.h>
 namespace LLDB {
 
 	// class Results
@@ -14,7 +14,10 @@ namespace LLDB {
 		return rows;
 	}
 	Row& Results::get(size_t index) {
-		return rows[index];
+		if (index < rows.size()) {
+			return rows[index];
+		}
+		throw Exception::build("Index is too big. length: ", rows.size());
 	}
 	Row& Results::operator[](size_t index) {
 		return get(index);

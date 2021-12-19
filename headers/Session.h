@@ -2,10 +2,10 @@
 #include <unordered_map>
 #include <string>
 #include <sstream>
-#include <Once.h>
 
 namespace LLDB {
 
+	class Once;
 	class Results;
 	class ConnectionArgs;
 

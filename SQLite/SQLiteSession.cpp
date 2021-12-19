@@ -1,5 +1,6 @@
 #include <SQLiteSession.h>
 #include <Results.h>
+#include <Once.h>
 #include "third-party/sqlite3.h"
 
 namespace LLDB {

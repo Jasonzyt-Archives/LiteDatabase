@@ -3,6 +3,8 @@
 #include <vector>
 #include <sstream>
 #include <any>
+#include <Session.h>
+#include <Results.h>
 
 namespace LLDB {
 	
@@ -42,15 +44,24 @@ namespace LLDB {
 
 		// Set the result storage & execute
 		template <typename T>
-		void operator,(into_type<T>& i);
+		Once& operator,(into_type<T>&& i) {
+			auto res = sess.query(getSQL());
+			if (res.size()) {
+				from_row(res[0], i.val);
+			}
+		}
 		template <typename T>
-		void operator,(into_type<std::vector<T>>& i);
-		template <typename T>
-		void operator,(into_type<Row>& i);
-		template <typename T>
-		void operator,(into_type<Results>& i);
-		template <typename T>
-		void operator,(into_type<bool>& i);
+		Once& operator,(into_type<std::vector<T>>&& i) {
+			auto res = sess.query(getSQL());
+			for (auto& row : res.getAll()) {
+				T v;
+				from_row(row, v);
+				i.val.push_back(v);
+			}
+		}
+		void operator,(into_type<Row>&& i);
+		void operator,(into_type<Results>&& i);
+		void operator,(into_type<bool>&& i);
 		void operator,(into_null_type);
 
 		std::string getSQL();
@@ -78,6 +89,17 @@ namespace LLDB {
 		T& val;
 
 		into_type(T& v) : val(v) {}
+
+	};
+
+	template <typename T>
+	class into_vector_type {
+
+	public:
+		
+		std::vector<T> val;
+
+		into_vector_type(std::vector<T>& v) : val(v) {}
 
 	};
 

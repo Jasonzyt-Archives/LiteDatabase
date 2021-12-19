@@ -1,5 +1,4 @@
 #include <Once.h>
-#include <Session.h>
 #include <Utils.h>
 #include <Results.h>
 #include <Row.h>
@@ -49,34 +48,15 @@ namespace LLDB {
 		return *this;
 	}
 
-	template <typename T>
-	void Once::operator,(into_type<T>& i) {
+	void Once::operator,(into_type<Row>&& i) {
 		auto res = sess.query(getSQL());
-		if (res.size()) {
-			from_row(res[0], i.val);
-		}
+		i.val = res[0];
 	}
-	template <typename T>
-	void Once::operator,(into_type<std::vector<T>>& i) {
+	void Once::operator,(into_type<Results>&& i) {
 		auto res = sess.query(getSQL());
-		for (auto& row : res.getAll()) {
-			T v;
-			from_row(row, v);
-			i.val.push_back(v);
-		}
+		i.val = res;
 	}
-	template <typename T>
-	void Once::operator,(into_type<Row>& i) {
-		auto res = sess.query(getSQL());
-		return res[0];
-	}
-	template <typename T>
-	void Once::operator,(into_type<Results>& i) {
-		auto res = sess.query(getSQL());
-		return res;
-	}
-	template <typename T>
-	void Once::operator,(into_type<bool>& i) {
+	void Once::operator,(into_type<bool>&& i) {
 		try {
 			sess.exec(getSQL()); 
 			i.val = true;

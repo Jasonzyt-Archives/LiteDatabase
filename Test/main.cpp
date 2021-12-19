@@ -11,6 +11,16 @@ using namespace LLDB;
 
 namespace fs = std::filesystem;
 
+struct test {
+	std::string a;
+	uint64_t b;
+};
+
+void from_row(Row& row, test& t) {
+	t.a = getString(row["A"]);
+	t.b = getInteger<uint64_t>(row["B"]);
+}
+
 int main(int argc, char** argv) {
 	SetCurrentDirectory(L"..\\x64\\Release");
 	cout << "================ LLDB Test ================" << endl;
@@ -28,15 +38,15 @@ int main(int argc, char** argv) {
 			cout << "- B: " << getInteger<uint64_t>(c2) << endl;
 		}
 		cout << endl;
+		test ress;
 		Once onc(sess);
-		onc << "INSERT INTO `$` VALUES('$$k',$)", 
-			use("TEST"), use("123456"), into();
-		cout << onc.getSQL() << endl;
+		onc << "select * from TEST where A='$'", use("wdnmd"), into(ress);
+		cout << ress.a << ress.b << endl;
 		sess.close();
-		getchar();
 	}
 	catch (std::exception e) {
 		cout << "[ERROR] " << e.what() << endl;
 	}
+	getchar();
 	return 0;
 }
