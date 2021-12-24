@@ -2,31 +2,27 @@
 
 namespace LLDB {
 
-	// class Row
-	Row::Row() {}
-
-	void Row::emplace(const std::string& header, std::any val) {
-		data.emplace(header, val);
-	}
-
 	bool Row::has(const std::string& header) {
-		return data.count(header);
+		return count(header);
 	}
 	std::vector<std::string> Row::headers() {
 		std::vector<std::string> result;
-		for (auto& [k, _] : data) {
+		for (auto& [k, _] : *this) {
 			result.push_back(k);
 		}
 		return result;
 	}
-	std::any Row::get(const std::string& header) {
-		if (data.count(header)) {
-			return data.at(header);
+	Any Row::get(const std::string& header) {
+		if (has(header)) {
+			return at(header);
 		}
-		return std::any();
+		return Any();
 	}
-	std::any Row::operator[](const std::string& header) {
+	Any Row::operator[](const std::string& header) {
 		return get(header);
+	}
+	bool Row::empty() {
+		return empty();
 	}
 
 }

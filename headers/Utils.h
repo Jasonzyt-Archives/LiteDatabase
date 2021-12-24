@@ -1,10 +1,10 @@
 #pragma once
 #include <exception>
-#include <any>
 #include <Session.h>
-#include <TypeIDs.h>
 
 namespace LLDB {
+
+	class Any;
 
 	// std::string
 	std::vector<std::string> split(std::string str, char delim = ' ');
@@ -34,12 +34,12 @@ namespace LLDB {
 
 	class ConnectionArgs {
 
-		std::unordered_map<std::string, std::any> args;
+		std::unordered_map<std::string, Any> args;
 
 	public:
 
 		ConnectionArgs();
-		ConnectionArgs(std::initializer_list<std::pair<const std::string, std::any>> il);
+		ConnectionArgs(std::initializer_list<std::pair<const std::string, Any>> il);
 
 		std::string getString(const std::string& key, bool option = false);
 		int getInt(const std::string& key, bool option = false, int def = -1);
@@ -59,59 +59,6 @@ namespace LLDB {
 	inline void appendStream(Stream& s, T val, Args... args) {
 		s << val;
 		appendStream(s, args...);
-	}
-
-	// std::any
-	template <typename T>
-	inline bool is(std::any val) {
-		return (val.type() == typeid(T));
-	}
-	template <typename T>
-	inline T get(std::any val) {
-		if (val.has_value()) {
-			//return std::any_cast<T>(val);
-			auto ptr = val._Cast<T>();
-			if (ptr) {
-				return *ptr;
-			}
-			throw Exception::build("LLDB::get: Failed to get, source type(", 
-				val.type().name(), "), target type(", typeid(T).name(), ')');
-		}
-		throw Exception::build("LLDB::get: val is empty!!!");
-	}
-	// Only for string
-	std::string getString(std::any val);
-	// Only for integer like int,short
-	template <typename T>
-	inline T getInteger(std::any val) {
-		if (val.has_value()) {
-			switch (val.type().hash_code())
-			{
-			case HASHCODE_CHAR:
-				return (T)get<char>(val);
-			case HASHCODE_UNSIGNED_CHAR:
-				return (T)get<unsigned char>(val);
-			case HASHCODE_SHORT:
-				return (T)get<short>(val);
-			case HASHCODE_UNSIGNED_SHORT:
-				return (T)get<unsigned short>(val);
-			case HASHCODE_INT:
-				return (T)get<int>(val);
-			case HASHCODE_UNSIGNED_INT:
-				return (T)get<unsigned int>(val);
-			case HASHCODE_LONG_LONG:
-				return (T)get<long long>(val);
-			case HASHCODE_UNSIGNED_LONG_LONG:
-				return (T)get<unsigned long long>(val);
-			case HASHCODE_FLOAT:
-				return (T)get<float>(val);
-			case HASHCODE_DOUBLE:
-				return (T)get<double>(val);
-			default:
-				return get<T>(val);
-			}
-		}
-		return 0;
 	}
 
 	template <typename ... Args>

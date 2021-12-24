@@ -17,8 +17,8 @@ struct test {
 };
 
 void from_row(Row& row, test& t) {
-	t.a = getString(row["A"]);
-	t.b = getInteger<uint64_t>(row["B"]);
+	t.a = row["A"].getString();
+	t.b = row["B"].getNumber<uint64_t>();
 }
 
 int main(int argc, char** argv) {
@@ -26,27 +26,29 @@ int main(int argc, char** argv) {
 	cout << "================ LLDB Test ================" << endl;
 	cout << "[DEBUG] argv[0]: " << argv[0] << endl;
 	cout << "- SQLite: " << endl;
-	auto& sess = newSession(DatabaseType::SQLITE);
+	auto& sess = newSession(SQLITE);
 	try {
 		sess.open({ {"target", "./test.db"}, {"create", true} });
 		sess.exec("CREATE TABLE IF NOT EXISTS \"TEST\" (A TEXT,B INTEGER);");
-		auto res = sess.selectAll("TEST");
-		for (auto& row : res.getAll()) {
+		Results res;
+		sess << "SELECT * FROM TEST";//, into(res);
+		for (auto& row : res) {
 			auto c1 = row.get("A");
-			cout << "- A: " << get<std::string>(c1) << endl;
+			cout << "- A: " << c1.getString() << endl;
 			auto c2 = row.get("B");
-			cout << "- B: " << getInteger<uint64_t>(c2) << endl;
+			cout << "- B: " << c2.getNumber<uint64_t>() << endl;
 		}
 		cout << endl;
-		test ress;
+		std::vector<test> ress;
 		Once onc(sess);
-		onc << "select * from TEST where A='$'", use("wdnmd"), into(ress);
-		cout << ress.a << ress.b << endl;
-		sess.close();
+		onc << "select * from TEST where A='awa';select * from TEST where A='?'", use("wdnmd"), into(ress);
+		for (auto& a : ress) {
+			cout << a.a << a.b << endl;
+		}
+		sess.release();
 	}
 	catch (std::exception e) {
 		cout << "[ERROR] " << e.what() << endl;
 	}
-	getchar();
 	return 0;
 }

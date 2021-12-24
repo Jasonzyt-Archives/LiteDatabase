@@ -14,11 +14,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\headers\SQLiteSession.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="SQLiteSession.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -30,5 +25,10 @@
     <Library Include="..\x64\Release\LLDB-Core.lib">
       <Filter>Lib</Filter>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SQLiteSession.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

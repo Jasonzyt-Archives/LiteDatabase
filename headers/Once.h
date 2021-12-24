@@ -31,6 +31,8 @@ namespace LLDB {
 
 	public:
 
+		bool heap = false;
+
 		Once(Session& sess);
 		
 		template<typename T>
@@ -39,25 +41,29 @@ namespace LLDB {
 			return *this;
 		}
 
-		// Replace ${key} or $
+		// Replace ${key} or ?
+		// char '?' should be "??", or it will error
 		Once& operator,(const use_type& u);
 
 		// Set the result storage & execute
+		// After using into, the once object will be released!
 		template <typename T>
-		Once& operator,(into_type<T>&& i) {
+		void operator,(into_type<T>&& i) {
 			auto res = sess.query(getSQL());
 			if (res.size()) {
 				from_row(res[0], i.val);
 			}
+			release();
 		}
 		template <typename T>
-		Once& operator,(into_type<std::vector<T>>&& i) {
+		void operator,(into_type<std::vector<T>>&& i) {
 			auto res = sess.query(getSQL());
-			for (auto& row : res.getAll()) {
+			for (auto& row : res) {
 				T v;
 				from_row(row, v);
 				i.val.push_back(v);
 			}
+			release();
 		}
 		void operator,(into_type<Row>&& i);
 		void operator,(into_type<Results>&& i);
@@ -66,7 +72,11 @@ namespace LLDB {
 
 		std::string getSQL();
 
+		void release();
+
 	};
+
+	void release(Once& once);
 
 	class use_type {
 
@@ -89,17 +99,6 @@ namespace LLDB {
 		T& val;
 
 		into_type(T& v) : val(v) {}
-
-	};
-
-	template <typename T>
-	class into_vector_type {
-
-	public:
-		
-		std::vector<T> val;
-
-		into_vector_type(std::vector<T>& v) : val(v) {}
 
 	};
 

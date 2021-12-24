@@ -17,13 +17,13 @@ namespace LLDB {
 	}
 	void Once::replace(const std::string& v) {
 		auto str = sql.str();
-		for (int i = start; i < str.size(); i++) {
-			if (str[i] == '$') {
+		for (size_t i = start; i < str.size(); i++) {
+			if (str[i] == '?') {
 				if (i + 1 == str.size()) {
 					str.pop_back();
 					str += v;
 				}
-				else if (str[i + 1] != '$') {
+				else if (str[i + 1] != '?') {
 					str = str.substr(0, i) + v + str.substr(i + 1);
 				}
 				else {
@@ -51,10 +51,12 @@ namespace LLDB {
 	void Once::operator,(into_type<Row>&& i) {
 		auto res = sess.query(getSQL());
 		i.val = res[0];
+		release();
 	}
 	void Once::operator,(into_type<Results>&& i) {
 		auto res = sess.query(getSQL());
 		i.val = res;
+		release();
 	}
 	void Once::operator,(into_type<bool>&& i) {
 		try {
@@ -64,19 +66,33 @@ namespace LLDB {
 		catch (...) {
 			i.val = false;
 		}
+		release();
 	}
 	void Once::operator,(into_null_type) {
 		sess.exec(getSQL());
+		release();
 	}
 
 	std::string Once::getSQL() {
 		auto str = sql.str();
-		for (int i = 0; i < str.size() - 1; i++) {
-			if (str[i] == '$' && str[i + 1] == '$') {
+		for (size_t i = 0; i < str.size() - 1; i++) {
+			if (str[i] == '?' && str[i + 1] == '?') {
 				str.erase(i, 1);
 			}
 		}
 		return str;
+	}
+
+	void Once::release() {
+		if (heap) {
+			LLDB::release(*this);
+		}
+	}
+
+	void release(Once& once) {
+		Once* ptr = &once;
+		delete ptr;
+		ptr = 0;
 	}
 
 	use_type::use_type(const std::string& k, const std::string& v) : key(k), val(v) {

@@ -33,6 +33,10 @@ namespace LLDB {
 		return _isOpen;
 	}
 
+	void Session::release() {
+		LLDB::release(*this);
+	}
+
 	std::string searchEnvironment(const std::string& lib) {
 		auto envStr = getenv("Path");
 		auto env = split(envStr, ';');
@@ -75,6 +79,13 @@ namespace LLDB {
 			throw Exception::build("Error when getting proc address: ", funcName);
 		}
 		return ((Session & (*)())func)();
+	}
+
+	void release(Session& sess) {
+		sess.close();
+		Session* ptr = &sess;
+		delete ptr;
+		ptr = 0;
 	}
 
 }

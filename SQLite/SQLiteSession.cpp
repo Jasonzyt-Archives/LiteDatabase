@@ -1,7 +1,8 @@
-#include <SQLiteSession.h>
+#include "SQLiteSession.h"
 #include <Results.h>
 #include <Once.h>
 #include "third-party/sqlite3.h"
+#include <iostream>
 
 namespace LLDB {
 
@@ -42,6 +43,7 @@ namespace LLDB {
 	void SQLiteSession::close() {
 		if (db) {
 			sqlite3_close(db);
+			db = 0;
 		}
 	}
 	void SQLiteSession::exec(const std::string& sql) {
@@ -51,9 +53,9 @@ namespace LLDB {
 			throw buildException(res, msg);
 		}
 	}
-	Results SQLiteSession::query(const std::string& sql) {
-		Results result;
-		std::vector<std::string> cols;
+	void SQLiteSession::query(const std::string& sql, 
+		std::function<bool(Row&, int)> cb) {
+		static int stmt_num = 0;
 		sqlite3_stmt* stmt = NULL;
 		const char* tail;
 		auto res = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, &tail);
@@ -77,44 +79,59 @@ namespace LLDB {
 						break;
 					}
 					case SQLITE_INTEGER: {
-						auto valStr = (const char*)sqlite3_column_text(stmt, i);
-						uint64_t valUll = std::stoull(valStr);
-						if (valUll >= INT64_MAX) {
-							row.emplace(colName, valUll);
-						}
-						else {
-							int64_t val = sqlite3_column_int64(stmt, i);
-							row.emplace(colName, val);
-						}
+						row.emplace(colName, sqlite3_column_int64(stmt, i));
 						break;
 					}
+					// Note: Integer > int64_max will be double
 					case SQLITE_FLOAT: {
 						row.emplace(colName, sqlite3_column_double(stmt, i));
 						break;
 					}
 					case SQLITE_NULL: {
-						row.emplace(colName, std::any());
+						row.emplace(colName, Any());
 						break;
 					}
 					}
 					i++;
 				}
-				result.push_back(row);
+				if (!cb(row, stmt_num)) {
+					break;
+				}
 			}
 		}
 		else {
 			sqlite3_finalize(stmt);
+			stmt_num = 0;
 			throw buildException(db);
 		}
 		sqlite3_finalize(stmt);
+		if (strlen(tail)) {
+			stmt_num++;
+			query(tail, cb);
+		}
+		else {
+			stmt_num = 0;
+		}
+	}
+	void SQLiteSession::query(const std::string& sql,
+		std::function<bool(Row&)> cb) {
+		query(sql, [&](Row& row, int) {
+			return cb(row);
+		});
+	}
+	Results SQLiteSession::query(const std::string& sql) {
+		Results result;
+		query(sql, [&](Row& row) {
+			result.push_back(row);
+			return true;
+		});
 		return result;
 	}
-	Results SQLiteSession::selectAll(const std::string& tbl) {
-		return query("SELECT * FROM `" + tbl + "`");
-	}
 
-	Once& SQLiteSession::operator<<(std::string sql) {
-		Once once(*this);
+	Once& SQLiteSession::operator<<(const std::string& sql) {
+		Once* once_ptr = new Once(*this);
+		Once& once = *once_ptr;
+		once.heap = true;
 		once << sql;
 		return once;
 	}

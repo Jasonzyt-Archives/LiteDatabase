@@ -1,4 +1,5 @@
 #include <Utils.h>
+#include <Any.h>
 
 namespace LLDB {
 	// Functions
@@ -10,29 +11,6 @@ namespace LLDB {
 			result.push_back(line);
 		}
 		return result;
-	}
-
-	std::string getString(std::any val) {
-		if (val.has_value()) {
-			switch (val.type().hash_code())
-			{
-			case HASHCODE_CHAR:
-				return std::string() + get<char>(val);
-			case HASHCODE_CHAR_PTR:
-				return std::string(get<char*>(val));
-			case HASHCODE_CONST_CHAR_PTR:
-				return std::string(get<const char*>(val));
-			case HASHCODE_STD_STRING:
-				return get<std::string>(val);
-			case HASHCODE_STD_STRING_PTR:
-				return *get<std::string*>(val);
-			case HASHCODE_CONST_STD_STRING_PTR:
-				return *get<const std::string*>(val);
-			default:
-				return get<std::string>(val);
-			}
-		}
-		return "";
 	}
 
 	// class Exception
@@ -68,18 +46,15 @@ namespace LLDB {
 	// class ConnectionArgs
 	ConnectionArgs::ConnectionArgs() {}
 	ConnectionArgs::ConnectionArgs(std::initializer_list<
-		std::pair<const std::string, std::any>> il) {
+		std::pair<const std::string, Any>> il) {
 		args.insert(il);
 	}
 
 	std::string ConnectionArgs::getString(const std::string& key, bool option) {
 		if (!option && !args.count(key))
 			throw Exception::build("Connection argument not found(string): ", key);
-		if (is<std::string>(args.at(key))) {
-			return get<std::string>(args.at(key));
-		}
-		else if (is<const char*>(args.at(key))) {
-			return get<const char*>(args.at(key));
+		if (args.at(key).isString()) {
+			return args.at(key).getString();
 		}
 		else {
 			throw Exception::build("The type of connection argument '", key, "' is wrong!");
@@ -92,8 +67,8 @@ namespace LLDB {
 		else if (!args.count(key)) {
 			return def;
 		}
-		if (is<int>(args.at(key))) {
-			return get<int>(args.at(key));
+		if (args.at(key).isInteger()) {
+			return args.at(key).getInteger<int>();
 		}
 		else {
 			throw Exception::build("The type of connection argument '", key, "' is wrong!");
@@ -106,8 +81,8 @@ namespace LLDB {
 		else if (!args.count(key)) {
 			return def;
 		}
-		if (is<bool>(args.at(key))) {
-			return get<bool>(args.at(key));
+		if (args.at(key).is<bool>()) {
+			return args.at(key).get<bool>();
 		}
 		else {
 			throw Exception::build("The type of connection argument '", key, "' is wrong!");

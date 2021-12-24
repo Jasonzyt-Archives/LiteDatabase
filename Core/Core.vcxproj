@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\headers\Any.h" />
     <ClInclude Include="..\headers\Config.h" />
     <ClInclude Include="..\headers\Once.h" />
     <ClInclude Include="..\headers\Results.h" />
@@ -150,6 +151,7 @@
     <ClInclude Include="..\headers\Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Any.cpp" />
     <ClCompile Include="Once.cpp" />
     <ClCompile Include="Results.cpp" />
     <ClCompile Include="Row.cpp" />

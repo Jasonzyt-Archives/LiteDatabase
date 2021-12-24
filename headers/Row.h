@@ -1,20 +1,13 @@
 #pragma once
 #include <unordered_map>
 #include <string>
-#include <any>
+#include <Any.h>
 
 namespace LLDB {
 	
-	class Row {
-
-		std::unordered_map<std::string, std::any> data;
+	class Row : public std::unordered_map<std::string, Any> {
 
 	public:
-
-		Row();
-
-		// Write
-		void emplace(const std::string& header, std::any val);
 
 		// Read
 		// Return if there is a header(key) in this row
@@ -25,9 +18,12 @@ namespace LLDB {
 		// If doesn't exists, it will return std::any()
 		// Tips: 1. Call std::any::type() to get the type of the value
 		//       2. Call std::any::_Cast<Type>() to get the value
-		std::any get(const std::string& header);
-		std::any operator[](const std::string& header);
-
+		Any get(const std::string& header);
+		// = get(header);
+		Any operator[](const std::string& header);
+		// If the row is empty
+		bool empty();
+	
 	};
 
 }

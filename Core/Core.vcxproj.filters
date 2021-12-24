@@ -29,6 +29,9 @@
     <ClInclude Include="..\headers\Once.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\headers\Any.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Session.cpp">
@@ -44,6 +47,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Once.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Any.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

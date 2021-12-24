@@ -142,14 +142,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\headers\SQLiteSession.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="SQLiteSession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\x64\Release\LLDB-Core.lib" />
     <Library Include="third-party\sqlite3.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SQLiteSession.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
