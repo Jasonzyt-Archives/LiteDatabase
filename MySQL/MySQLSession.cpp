@@ -204,6 +204,12 @@ namespace LLDB {
 			throw buildException(db);
 		}
 	}
+	void MySQLSession::changeUser(const std::string& user, 
+		const std::string& passwd) {
+		if (mysql_change_user(db, user.c_str(), passwd.c_str(), NULL) != OK) {
+			throw buildException(db);
+		}
+	}
 
 	Once& MySQLSession::operator<<(const std::string& sql) {
 		Once* once_ptr = new Once(*this);

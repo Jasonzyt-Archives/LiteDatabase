@@ -69,6 +69,8 @@ namespace LLDB {
 		virtual Results query(const std::string& sql) = 0;
 		// @summary Change the current Database
 		virtual void setCurrentDB(const std::string& dbname);
+		// @summary Change the user
+		virtual void changeUser(const std::string& user, const std::string& passwd);
 
 		// @summary Stream API to execute sql statements
 		// @example sess << "SQL" << "A$ $$ ${key}", use("B"), use("key", "val"), into();

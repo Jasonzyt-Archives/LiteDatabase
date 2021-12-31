@@ -37,6 +37,9 @@ namespace LLDB {
 	void Session::setCurrentDB(const std::string& dbname) {
 		throw NotSupportedException();
 	}
+	void Session::changeUser(const std::string& user, const std::string& passwd) {
+		throw NotSupportedException();
+	}
 
 	bool Session::isOpen() {
 		return _isOpen;
