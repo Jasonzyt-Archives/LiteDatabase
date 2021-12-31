@@ -51,8 +51,12 @@ namespace LLDB {
 	}
 
 	std::string ConnectionArgs::getString(const std::string& key, bool option) {
-		if (!option && !args.count(key))
+		if (!option && !args.count(key)) {
 			throw Exception::build("Connection argument not found(string): ", key);
+		}
+		else if (!args.count(key)) {
+			return std::string();
+		}
 		if (args.at(key).isString()) {
 			return args.at(key).getString();
 		}
@@ -62,8 +66,9 @@ namespace LLDB {
 	}
 
 	int ConnectionArgs::getInt(const std::string& key, bool option, int def) {
-		if (!option && !args.count(key))
+		if (!option && !args.count(key)) {
 			throw Exception::build("Connection argument not found(int): ", key);
+		}
 		else if (!args.count(key)) {
 			return def;
 		}
@@ -76,8 +81,9 @@ namespace LLDB {
 	}
 
 	bool ConnectionArgs::getBool(const std::string& key, bool option, bool def) {
-		if (!option && !args.count(key))
+		if (!option && !args.count(key)) {
 			throw Exception("Connection argument not found(bool): " + key);
+		}
 		else if (!args.count(key)) {
 			return def;
 		}

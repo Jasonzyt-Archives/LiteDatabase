@@ -56,8 +56,8 @@ namespace LLDB {
 	void SQLiteSession::query(const std::string& sql, 
 		std::function<bool(Row&, int)> cb) {
 		static int stmt_num = 0;
-		sqlite3_stmt* stmt = NULL;
-		const char* tail;
+		sqlite3_stmt* stmt = nullptr;
+		const char* tail = nullptr;
 		auto res = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, &tail);
 		if (res == SQLITE_OK) {
 			while (sqlite3_step(stmt) == SQLITE_ROW) {

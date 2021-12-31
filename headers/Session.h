@@ -5,6 +5,7 @@
 #include <functional>
 
 #define LLDBAPI __declspec(dllexport)
+#pragma warning(disable: 26812)
 
 namespace LLDB {
 
@@ -66,6 +67,8 @@ namespace LLDB {
 		virtual void query(const std::string& sql, std::function<bool(Row&)> cb) = 0;
 		// @summary Execute a sql statement with results
 		virtual Results query(const std::string& sql) = 0;
+		// @summary Change the current Database
+		virtual void setCurrentDB(const std::string& dbname);
 
 		// @summary Stream API to execute sql statements
 		// @example sess << "SQL" << "A$ $$ ${key}", use("B"), use("key", "val"), into();
@@ -74,7 +77,6 @@ namespace LLDB {
 		
 		// @summary Get the database type
 		virtual DatabaseType getType() = 0;
-
 		// @summary Return if the connection is opening
 		bool isOpen();
 		// @summary Close the connection and release the memory

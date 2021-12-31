@@ -2,9 +2,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <any>
 #include <Session.h>
 #include <Results.h>
+#include <Types.h>
 
 namespace LLDB {
 	
@@ -103,13 +103,6 @@ namespace LLDB {
 	};
 
 	class into_null_type {};
-
-	inline std::string to_string(const char* cstr) {
-		return std::string(cstr);
-	}
-	inline std::string to_string(char* cstr) {
-		return std::string(cstr);
-	}
 
 	template <typename T>
 	inline into_type<T> into(T& v) {

@@ -16,7 +16,7 @@
 - Note: The object is stored in heap. If you don't need them, plz call `Session::release` to release it.
 - Example:
 ```cpp
-auto sess = newSession(DatabaseType::SQLite);
+auto sess = newSession(LLDB::SQLITE);
 ```
 
 ### `Session::open`

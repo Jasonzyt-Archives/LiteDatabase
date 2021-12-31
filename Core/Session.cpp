@@ -12,6 +12,11 @@ namespace fs = std::filesystem;
 
 namespace LLDB {
 
+	Exception NotSupportedException() {
+		return Exception::build
+			("This kind of database doesn't support this operation");
+	}
+
 	std::string DatabaseTypeToString(DatabaseType type) {
 		switch (type) {
 		case DatabaseType::SQLITE:
@@ -27,6 +32,10 @@ namespace LLDB {
 		default:
 			return DT_UNKNOWN;
 		}
+	}
+
+	void Session::setCurrentDB(const std::string& dbname) {
+		throw NotSupportedException();
 	}
 
 	bool Session::isOpen() {

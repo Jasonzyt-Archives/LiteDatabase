@@ -56,19 +56,34 @@ namespace LLDB {
 			switch (type().hash_code())
 			{
 			case HASHCODE_CHAR:
-				return std::string() + get<char>();
+				return std::string() + _get<char>();
 			case HASHCODE_CHAR_PTR:
-				return std::string(get<char*>());
+				return std::string(_get<char*>());
 			case HASHCODE_CONST_CHAR_PTR:
-				return std::string(get<const char*>());
+				return std::string(_get<const char*>());
 			case HASHCODE_STD_STRING:
-				return get<std::string>();
+				return _get<std::string>();
 			case HASHCODE_STD_STRING_PTR:
-				return *get<std::string*>();
+				return *_get<std::string*>();
 			case HASHCODE_CONST_STD_STRING_PTR:
-				return *get<const std::string*>();
+				return *_get<const std::string*>();
 			default:
-				return get<std::string>();
+				if (is<bool>()) {
+					return (get<bool>() ? "true" : "false");
+				}
+				if (isNumber()) {
+					return std::to_string(getNumber<int64_t>());
+				}
+				if (type() == typeid(Date)) {
+					return get<Date>().toString();
+				}
+				if (type() == typeid(Time)) {
+					return get<Time>().toString();
+				}
+				if (type() == typeid(DateTime)) {
+					return get<DateTime>().toString();
+				}
+				return _get<std::string>();
 			}
 		}
 		return "";
