@@ -13,9 +13,9 @@ const static std::string DT_ODBC    = "ODBC";
 const static std::string DT_UNKNOWN = "Unknown";
 
 const static std::unordered_map<std::string, std::string> CREATION_FUNCTIONS {
-	{DT_SQLITE, "newSQLiteSession"},
-	{DT_MYSQL, "newMySQLSession"},
-	{DT_PGSQL, "newPgSQLSession"},
-	{DT_ORACLE, "newOracleSession"},
-	{DT_ODBC, "newODBCSession"}
+    {DT_SQLITE, "newSQLiteSession"},
+    {DT_MYSQL, "newMySQLSession"},
+    {DT_PGSQL, "newPgSQLSession"},
+    {DT_ORACLE, "newOracleSession"},
+    {DT_ODBC, "newODBCSession"}
 };

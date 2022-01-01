@@ -4,12 +4,12 @@
 
 namespace LLDB {
 
-	class Results : public std::vector<Row> {
-		
-	public:
-		
-		// Now is empty, but maybe add something here in the future
+    class Results : public std::vector<Row> {
+        
+    public:
+        
+        // Now is empty, but maybe add something here in the future
 
-	};
+    };
 
 }
