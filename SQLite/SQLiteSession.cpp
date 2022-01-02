@@ -44,6 +44,7 @@ namespace LLDB {
         if (conn) {
             sqlite3_close(conn);
             conn = 0;
+            _isOpen = false;
         }
     }
     void SQLiteSession::exec(const std::string& sql) {
@@ -56,6 +57,7 @@ namespace LLDB {
     void SQLiteSession::query(const std::string& sql, 
         std::function<bool(Row&, int)> cb) {
         static int stmt_num = 0;
+        stmt_num = 0;
         sqlite3_stmt* stmt = nullptr;
         const char* tail = nullptr;
         auto res = sqlite3_prepare_v2(conn, sql.c_str(), -1, &stmt, &tail);
@@ -112,28 +114,6 @@ namespace LLDB {
         else {
             stmt_num = 0;
         }
-    }
-    void SQLiteSession::query(const std::string& sql,
-        std::function<bool(Row&)> cb) {
-        query(sql, [&](Row& row, int) {
-            return cb(row);
-        });
-    }
-    Results SQLiteSession::query(const std::string& sql) {
-        Results result;
-        query(sql, [&](Row& row) {
-            result.push_back(row);
-            return true;
-        });
-        return result;
-    }
-
-    Once& SQLiteSession::operator<<(const std::string& sql) {
-        Once* once_ptr = new Once(*this);
-        Once& once = *once_ptr;
-        once.heap = true;
-        once << sql;
-        return once;
     }
 
     DatabaseType SQLiteSession::getType() {

@@ -4,7 +4,8 @@
 #include <LLDB.h>
 
 //#define SQLITE_TEST
-#define MYSQL_TEST
+//#define MYSQL_TEST
+#define PGSQL_TEST
 
 using namespace std;
 using namespace LLDB;
@@ -75,6 +76,29 @@ int main(int argc, char** argv) {
 			cout << "* " << t.db << endl;
 		}
 		mysql.release();
+	}
+	catch (std::exception e) {
+		cout << "[ERROR] " << e.what() << endl;
+	}
+#endif
+#if defined(PGSQL_TEST)
+	cout << "- PostgreSQL: " << endl;
+	auto& pgsql = newSession(POSTGRESQL);
+	try {
+		pgsql.open({ {"host","127.0.0.1"},{"user","root"},{"passwd","password"},
+			{"database", "test"}});
+		pgsql << "CREATE TABLE IF NOT EXISTS TEST (A TEXT,B INTEGER);", into();
+		std::vector<test> res;
+		pgsql << "SELECT * FROM `TEST`", into(res);
+		for (auto& t : res) {
+			cout << "- " << t.a << ' ' << t.b << endl;
+		}
+		std::vector<dbname> dbs;
+		pgsql << "SHOW DATABASES", into(dbs);
+		for (auto& t : dbs) {
+			cout << "* " << t.db << endl;
+		}
+		pgsql.release();
 	}
 	catch (std::exception e) {
 		cout << "[ERROR] " << e.what() << endl;

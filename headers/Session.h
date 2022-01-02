@@ -19,8 +19,9 @@ namespace LLDB {
         SQLITE,
         MYSQL,
         POSTGRESQL,
+        // Unsupported
         ORACLE,
-        ODBC
+        ODBC,
     };
     std::string DatabaseTypeToString(DatabaseType type);
 
@@ -64,9 +65,9 @@ namespace LLDB {
         // @summary Execute a sql statement and fetch rows one by one
         // @note Return false in callback function to stop querying
         // @callback cb Row& The row
-        virtual void query(const std::string& sql, std::function<bool(Row&)> cb) = 0;
+        virtual void query(const std::string& sql, std::function<bool(Row&)> cb);
         // @summary Execute a sql statement with results
-        virtual Results query(const std::string& sql) = 0;
+        virtual Results query(const std::string& sql);
         // @summary Change the current Database
         virtual void setCurrentDB(const std::string& dbname);
         // @summary Change the user
@@ -75,7 +76,7 @@ namespace LLDB {
         // @summary Stream API to execute sql statements
         // @example sess << "SQL" << "A$ $$ ${key}", use("B"), use("key", "val"), into();
         //          This is equivalent to exec("SQLAB $ val")
-        virtual Once& operator<<(const std::string& sql) = 0;
+        virtual Once& operator<<(const std::string& sql);
         
         // @summary Get the database type
         virtual DatabaseType getType() = 0;

@@ -40,6 +40,7 @@ namespace LLDB {
         if (conn) {
             mysql_close(conn);
             conn = 0;
+            _isOpen = false;
         }
     }
     void MySQLSession::exec(const std::string& sql) {
@@ -51,6 +52,7 @@ namespace LLDB {
     void MySQLSession::query(const std::string& sql, 
         std::function<bool(Row&, int)> cb) {
         static int stmt_num = 0;
+        stmt_num = 0;
         auto sqls = split(sql, ';');
         for (auto& s : sqls) {
             if (s.empty()) {
@@ -185,20 +187,6 @@ namespace LLDB {
         }
         stmt_num = 0;
     }
-    void MySQLSession::query(const std::string& sql, 
-        std::function<bool(Row&)> cb) {
-        query(sql, [&](Row& row, int) {
-            return cb(row);
-        });
-    }
-    Results MySQLSession::query(const std::string& sql) {
-        Results result;
-        query(sql, [&](Row& row) {
-            result.push_back(row);
-            return true;
-        });
-        return result;
-    }
     void MySQLSession::setCurrentDB(const std::string& db) {
         if (mysql_select_db(conn, db.c_str()) != OK) {
             throw buildException(conn);
@@ -211,23 +199,13 @@ namespace LLDB {
         }
     }
 
-    Once& MySQLSession::operator<<(const std::string& sql) {
-        Once* once_ptr = new Once(*this);
-        Once& once = *once_ptr;
-        once.heap = true;
-        once << sql;
-        return once;
-    }
-
     DatabaseType MySQLSession::getType() {
         return DatabaseType::MYSQL;
     }
 
     bool MySQLSession::isOpen() {
-        if (mysql_ping(conn) == OK) {
-            _isOpen = true;
-        }
-        else {
+        if (mysql_ping(conn) != OK) {
+            close();
             _isOpen = false;
         }
         return _isOpen;

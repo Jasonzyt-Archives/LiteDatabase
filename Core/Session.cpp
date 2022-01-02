@@ -1,5 +1,6 @@
 #include <Session.h>
-#include <Utils.h>
+#include <Once.h>
+#include <Results.h>
 #include <Config.h>
 #include <Windows.h>
 #include <functional>
@@ -34,11 +35,33 @@ namespace LLDB {
         }
     }
 
+    void Session::query(const std::string& sql,
+        std::function<bool(Row&)> cb) {
+        query(sql, [&](Row& row, int) {
+            return cb(row);
+        });
+    }
+    Results Session::query(const std::string& sql) {
+        Results result;
+        query(sql, [&](Row& row) {
+            result.push_back(row);
+            return true;
+        });
+        return result;
+    }
     void Session::setCurrentDB(const std::string& dbname) {
         throw NotSupportedException();
     }
     void Session::changeUser(const std::string& user, const std::string& passwd) {
         throw NotSupportedException();
+    }
+
+    Once& Session::operator<<(const std::string& sql) {
+        Once* once_ptr = new Once(*this);
+        Once& once = *once_ptr;
+        once.heap = true;
+        once << sql;
+        return once;
     }
 
     bool Session::isOpen() {

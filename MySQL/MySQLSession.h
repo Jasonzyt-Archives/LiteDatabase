@@ -18,12 +18,9 @@ namespace LLDB {
         void close();
         void exec(const std::string& sql);
         void query(const std::string& sql, std::function<bool(Row&, int)> cb);
-        void query(const std::string& sql, std::function<bool(Row&)> cb);
-        Results query(const std::string& sql);
         void setCurrentDB(const std::string& dbname);
         void changeUser(const std::string& user, const std::string& passwd);
 
-        Once& operator<<(const std::string& sql);
         DatabaseType getType();
         bool isOpen();
 
