@@ -15,9 +15,6 @@ namespace LLDB {
         if (pos == std::string::npos) {
             throw Exception::build("Once::replace: ${", k, "} not found");
         }
-        if (escape) {
-            
-        }
         str = str.substr(0, pos) + val + str.substr(pos + sym.size());
         sql = std::ostringstream();
         sql << str;
