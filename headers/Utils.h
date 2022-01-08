@@ -8,7 +8,7 @@ namespace LLDB {
 
     // std::string
     std::vector<std::string> split(std::string str, char delim = ' ');
-
+    
     class Exception : public std::exception {
 
         DatabaseType dt = DatabaseType::UNKNOWN;

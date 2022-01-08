@@ -7,16 +7,24 @@ namespace LLDB {
 
     Once::Once(Session& sess) : sess(sess) {}
 
-    void Once::replace(const std::string& k, const std::string& v) {
+    void Once::replace(const std::string& k, const std::string& v, bool escape) {
         auto sym = "${" + k + "}";
         auto str = sql.str();
         auto pos = str.find(sym);
-        str = str.substr(0, pos) + v + str.substr(pos + sym.size());
+        auto val = v;
+        if (pos == std::string::npos) {
+            throw Exception::build("Once::replace: ${", k, "} not found");
+        }
+        if (escape) {
+            
+        }
+        str = str.substr(0, pos) + val + str.substr(pos + sym.size());
         sql = std::ostringstream();
         sql << str;
     }
-    void Once::replace(const std::string& v) {
+    void Once::replace(const std::string& v, bool escape) {
         auto str = sql.str();
+        auto val = v;
         for (size_t i = start; i < str.size(); i++) {
             if (str[i] == '?') {
                 if (i + 1 == str.size()) {
@@ -37,13 +45,29 @@ namespace LLDB {
         sql = std::ostringstream();
         sql << str;
     }
+    void Once::escapeSingleQuote(std::string& str) {
+        for (size_t i = 0; i < str.size(); i++) {
+            if (str[i] == '\'' && str[i - 1] != '\'') {
+                str.insert(i, 1, '\'');
+                i++;
+            }
+        }
+    }
+    void Once::escapeDoubleQuote(std::string& str) {
+        for (size_t i = 0; i < str.size(); i++) {
+            if (str[i] == '\"' && str[i - 1] != '\\') {
+                str.insert(i, 1, '\\');
+                i++;
+            }
+        }
+    }
 
     Once& Once::operator,(const use_type& u) {
         if (u.noKey) {
-            replace(u.val);
+            replace(u.val, u.escape);
         }
         else {
-            replace(u.key, u.val);
+            replace(u.key, u.val, u.escape);
         }
         return *this;
     }
@@ -95,11 +119,13 @@ namespace LLDB {
         ptr = 0;
     }
 
-    use_type::use_type(const std::string& k, const std::string& v) : key(k), val(v) {
-        noKey = false;
+    use_type::use_type(const std::string& k, const std::string& v, bool escape) : key(k), val(v) {
+        this->noKey = false;
+        this->escape = escape;
     }
-    use_type::use_type(const std::string& v) : val(v) {
-        noKey = true;
+    use_type::use_type(const std::string& v, bool escape) : val(v) {
+        this->noKey = true;
+        this->escape = escape;
     }
 
 }

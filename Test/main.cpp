@@ -89,14 +89,9 @@ int main(int argc, char** argv) {
 			{"database", "test"}});
 		pgsql << "CREATE TABLE IF NOT EXISTS TEST (A TEXT,B INTEGER);", into();
 		std::vector<test> res;
-		pgsql << "SELECT * FROM `TEST`", into(res);
+		pgsql << "SELECT * FROM test", into(res);
 		for (auto& t : res) {
 			cout << "- " << t.a << ' ' << t.b << endl;
-		}
-		std::vector<dbname> dbs;
-		pgsql << "SHOW DATABASES", into(dbs);
-		for (auto& t : dbs) {
-			cout << "* " << t.db << endl;
 		}
 		pgsql.release();
 	}

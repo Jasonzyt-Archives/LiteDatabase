@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{2f4ba3dd-0f11-418d-ae1c-ff8fc95f2105}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PgSQLSession.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PgSQLSession.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\x64\Release\LLDB-Core.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="third-party\libpgport.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="third-party\libpgtypes.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="third-party\libpq.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="third-party\libecpg.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="third-party\libecpg_compat.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="third-party\libpgcommon.lib">
+      <Filter>Lib</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

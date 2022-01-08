@@ -25,9 +25,10 @@ namespace LLDB {
         int result = -1;
         size_t start = 0;
 
-        void replace(const std::string& k, const std::string& v);
-        void replace(const std::string& v);
-
+        void replace(const std::string& k, const std::string& v, bool escape);
+        void replace(const std::string& v, bool escape);
+        static void escapeSingleQuote(std::string& str);
+        static void escapeDoubleQuote(std::string& str);
 
     public:
 
@@ -82,12 +83,13 @@ namespace LLDB {
 
     public:
 
+        bool escape = true;
         bool noKey = false;
         std::string key;
         std::string val;
 
-        use_type(const std::string& k, const std::string& v);
-        use_type(const std::string& v);
+        use_type(const std::string& k, const std::string& v, bool escape);
+        use_type(const std::string& v, bool escape);
 
     };
 
@@ -103,28 +105,43 @@ namespace LLDB {
     };
 
     class into_null_type {};
-
+    
+    // @param v: The container to store the result
+    // @note: If T is a custom type, you should provide a from_row function
     template <typename T>
     inline into_type<T> into(T& v) {
         return into_type(v);
     }
+    // Execute a sql without result
     inline into_null_type into() {
         return into_null_type();
     }
 
     using std::to_string;
-    inline use_type use(const std::string& k, const std::string& v) {
-        return use_type(k, v);
+    // @param k: Key without "${}" which will be replaced
+    // @param v: Value which will be replaced with
+    // @param escape: Escape single quote and double quote
+    inline use_type use(const std::string& k, const std::string& v, bool escape = true) {
+        return use_type(k, v, escape);
     }
+    // @param k: Key without "${}" which will be replaced
+    // @param v: Value which will be replaced with
+    // @param escape: Escape single quote and double quote
+    // @note: If T is a custom type, you should provide a to_string function
     template <typename T>
-    inline use_type use(const std::string& k, T& v) {
-        return use_type(k, to_string(v));
+    inline use_type use(const std::string& k, T& v, bool escape = true) {
+        return use_type(k, to_string(v), escape);
     }
-    inline use_type use(const std::string& v) {
-        return use_type(v);
+    // @param v: Value which will be replaced '?' with
+    // @param escape: Escape single quote and double quote
+    inline use_type use(const std::string& v, bool escape = true) {
+        return use_type(v, escape);
     }
+    // @param v: Value which will be replaced '?' with
+    // @param escape: Escape single quote and double quote
+    // @note: If T is a custom type, you should provide a to_string function
     template <typename T>
-    inline use_type use(T& v) {
-        return use_type(to_string(v));
+    inline use_type use(T& v, bool escape = true) {
+        return use_type(to_string(v), escape);
     }
 }
